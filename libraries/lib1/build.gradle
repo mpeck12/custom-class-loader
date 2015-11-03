@@ -22,30 +22,28 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion Integer.parseInt(COMPILE_SDK)
     buildToolsVersion BUILD_TOOLS_VERSION
-
-    defaultConfig {
-        targetSdkVersion Integer.parseInt(TARGET_SDK)
-        minSdkVersion Integer.parseInt(MIN_SDK)
-    }
 }
 // Add the main project as a dependency for our library
-dependencies {
-    compile project(':app')
-}
+// dependencies {
+    // compile project(':app')
+// }
 // Define some tasks which are used in the build process
 task copyClasses(type: Copy) { // Copy the assembled *.class files for only the current namespace into a new directory
     // get directory for current namespace
     def namespacePath = PLUGIN_NAMESPACE.replaceAll("\\.","/")
     // set source and destination directories
-    from "build/intermediates/classes/release/${namespacePath}/"
-    into "build/intermediates/dex/${namespacePath}/"
+    from "build/intermediates/classes/release/${namespacePath}"
+    into "build/intermediates/dex/${namespacePath}"
 
     // exclude classes which don't have a corresponding entry in the source directory
     def remExt = { name -> name.lastIndexOf('.').with {it != -1 ? name[0..<it] : name} }
     eachFile {details ->
-        def thisFile = new File("${projectDir}/src/main/java/${namespacePath}/", remExt(details.name)+".java")
-        if (!(thisFile.exists())) {
-            details.exclude()
+        // def thisFile = new File("${projectDir}/src/main/java/${namespacePath}/", remExt(details.name)+".java")
+        // if (!(thisFile.exists())) {
+        //    details.exclude()
+        //}
+        if (details.name == "BuildConfig.class") {
+          details.exclude()
         }
     }
 }
@@ -59,12 +57,13 @@ task assembleExternalJar << {
         ext.androidSdkDir = localProps['sdk.dir']
     }
     // Make sure no existing jar file exists as this will cause dx to fail
-    new File("${buildDir}/intermediates/dex/${PLUGIN_NAMESPACE}.jar").delete();
+    //new File("${buildDir}/intermediates/dex/${PLUGIN_NAMESPACE}.jar").delete();
+    new File("${buildDir}/intermediates/dex/secondary_dex.jar").delete();
     // Use command line dx utility to convert *.class files into classes.dex inside jar archive
     String cmdExt = Os.isFamily(Os.FAMILY_WINDOWS) ? '.bat' : ''
     exec {
         commandLine "${androidSdkDir}/build-tools/${BUILD_TOOLS_VERSION}/dx${cmdExt}", '--dex',
-                    "--output=${buildDir}/intermediates/dex/${PLUGIN_NAMESPACE}.jar",
+                    "--output=${buildDir}/intermediates/dex/secondary_dex.jar",
                     "${buildDir}/intermediates/dex/"
     }
     copyJarToOutputs.execute()

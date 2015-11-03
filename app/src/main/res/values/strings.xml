@@ -15,9 +15,22 @@
     limitations under the License.
 -->
 <resources>
-    <string name="app_name">Secondary Dex Sample</string>
-    <string name="diag_title">Wait</string>
-    <string name="diag_message">Processing dex file...</string>
-    <string name="message">Press button to generate an awesome Toast!\n(Method in the secondary dex file is executed)</string>
-    <string name="toast">Toast!</string>
+    <string name="app_name">Code Execution Demo App</string>
+    <string name="message">This application demonstrates the ability to download\nand execute supporting code from an external location.\nThe supporting code displays a status message to the user when run.</string>
+    <string name="toast_dynamicdex">Download new code (.dex format)</string>
+    <string name="toast_dynamicSO">Download new code (.so format)</string>
+    <string name="toast_loaddex">Execute downloaded .dex code</string>
+    <string name="toast_loadSO">Execute downloaded .so code</string>
+    <string name="toast_loadSO_Local">Execute original .so code</string>
+<!--
+    <string name="file">file</string>
+    <string name="create_new">addnew</string>
+    <string name="open">open</string>
+-->
+    <string name="sharedobj">https://server/libhello-jni.so</string>
+    <string name="DEX">https://server/secondary_dex.jar</string>
+    <string name="insecure_file_permissions">Set insecure perm. on downloaded .so/.dex</string>
+    <string name="insecure_tls">Insecure TLS certificate validation</string>
+    <string name="pref_header_general">General</string>
+    <string name="title_activity_settings">Settings</string>
 </resources>

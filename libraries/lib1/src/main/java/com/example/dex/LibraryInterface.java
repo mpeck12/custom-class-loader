@@ -1,7 +1,5 @@
 /*
  * Copyright 2011 Google Inc.
- * Copyright 2014 Timothy Rae perceptualchaos2@gmail.com
- * Copyright 2015 The MITRE Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +14,10 @@
  * limitations under the License.
  */
 
-The following additional information applies to MITRE's code contributions:
+package com.example.dex;
 
-NOTICE
+import android.content.Context;
 
-This software was produced for the U.S. Government under Basic Contract
-No. W15P7T-13-C-A802, and is subject to the Rights in Noncommercial
-Computer Software and Noncommercial Computer Software Documentation
-Clause 252.227-7014 (FEB 2012)
-
-Approved for public release, case 15-1324.
+public interface LibraryInterface {
+    public void showAwesomeToast(Context context, String message);
+}

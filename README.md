@@ -1,3 +1,50 @@
+Code Execution Demonstration App
+================================
+
+This application, based on the sample custom class loading application
+described in [1] and the hello-jni sample application found in the Android NDK [2],
+demonstrates the ability to download and execute Dalvik bytecode
+and native code from arbitrary websites.
+
+We added the ability for the application to deliberately perform several
+poor security practices:
+* Use of plaintext http rather than https to download code, enabling
+  susceptibility to man-in-the-middle attacks
+* Toggle use of an insecure X509TrustManager that does not validate
+  the server's X.509 certificate when connecting over https, enabling
+  susceptibility to man-in-the-middle attacks
+* Toggle storing downloaded files as world-readable and
+  world-writable, opening the files up to manipulation
+  by other applications installed on the device
+
+Our motivation was to test the effectiveness of checks that we were
+developing for the Android lint tool, as well as to test the effectiveness
+of Android operating system platform security improvements that we were
+proposing.
+
+Instructions for use:
+
+1. Compile the application:
+gradlew build
+
+2. Compile the external Dalvik code (.jar file):
+gradlew assembleExternalJar
+
+3. Place the generated .so file and .jar file on a web server.
+.jar file: libraries/lib1/build/outputs/secondary_dex.jar
+.so file: appjni/build/intermediates/ndk/release/lib/\<architecture\>/libhello-jni.so
+where <arch> depends on the architecture of the mobile device that the
+application will be running on
+
+4. Start the application, and configure its settings to point
+to the URLs of the .so file and .jar file.
+
+[1] http://android-developers.blogspot.com/2011/07/custom-class-loading-in-dalvik.html
+[2] http://developer.android.com/ndk/samples/sample_hellojni.html
+
+OLD README CONTENTS
+===================
+
 Port of the work in the [following blog](http://android-developers.blogspot.jp/2011/07/custom-class-loading-in-dalvik.html) 
 to the new Gradle based Android Studio build system, as per [this thread on StackOverflow](http://stackoverflow.com/questions/18174022/custom-class-loading-in-dalvik-with-gradle-android-new-build-system/27241083#27241083)
 

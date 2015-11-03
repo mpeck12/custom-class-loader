@@ -16,5 +16,5 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.toastlib">
+    package="com.example.dex">
 </manifest>
