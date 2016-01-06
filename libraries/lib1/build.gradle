@@ -42,6 +42,9 @@ task copyClasses(type: Copy) { // Copy the assembled *.class files for only the 
         // if (!(thisFile.exists())) {
         //    details.exclude()
         //}
+        if (details.name == "LibraryInterface.class") {
+          details.exclude()
+        }
         if (details.name == "BuildConfig.class") {
           details.exclude()
         }

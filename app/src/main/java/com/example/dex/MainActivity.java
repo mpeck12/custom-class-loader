@@ -79,8 +79,8 @@ public class MainActivity extends Activity {
            @Override
            public X509Certificate[] getAcceptedIssuers() {
                X509Certificate[] myTrustAnchors = new X509Certificate[0];
-                   return myTrustAnchors;
-               }
+               return myTrustAnchors;
+           }
 
            @Override
            public void checkClientTrusted(X509Certificate[] certs, String authType) { }
@@ -148,15 +148,15 @@ public class MainActivity extends Activity {
 
     static public void loadNative(Context ctx, File nativepath) {
         if (!nativepath.exists()) {
-            Log.e("TAG","Native load error: "+nativepath+" does not exist");
+            Log.e("MainActivity","Native load error: "+nativepath+" does not exist");
             return;
         }
         try {
             System.load(nativepath.toString());
         } catch(Exception e) {
-            Log.e("TAG", "System.load() Error: " + e.getMessage());
+            Log.e("MainActivity", "System.load() Error: " + e.getMessage());
         }
-        Log.e("TAG", "System.load() success! : " + nativepath.toString());
+        Log.e("MainActivity", "System.load() success! : " + nativepath.toString());
     }
 
 
@@ -164,7 +164,7 @@ public class MainActivity extends Activity {
 
 
 
-    public void loadDex(Context ctx, File nativepath) {
+    public void loadDex(Activity ctx, File nativepath) {
 
         File optimizedDexOutputPath;
         if (insecureFilePermissions)
@@ -180,7 +180,7 @@ public class MainActivity extends Activity {
         Class libProviderClazz = null;
 
         if (!optimizedDexOutputPath.exists()){
-            Log.e("TAG", "error optimizedDexOutput path doesnot exist!");
+            Log.e("MainActivity", "error optimizedDexOutput path doesnot exist!");
         }
 
 
@@ -207,12 +207,14 @@ public class MainActivity extends Activity {
     /* from Helloworld-jni NDK samples */
     public void PrintFromNative(){
 
-        Context ctx = getApplicationContext();
-        CharSequence text = stringFromJni();
-        int duration = Toast.LENGTH_LONG;
-
-        Toast toast = Toast.makeText(ctx, text, duration);
-        toast.show();
+        final Context ctx = getApplicationContext();
+        final CharSequence text = stringFromJni();
+        final int duration = Toast.LENGTH_LONG;
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(ctx, text, duration).show();
+            }
+        });
 
         return;
 
@@ -222,7 +224,7 @@ public class MainActivity extends Activity {
         try {
             System.loadLibrary("app");
         } catch(Exception e) {
-            Log.e("TAG", "System.load() local Error: " + e.getMessage());
+            Log.e("MainActivity", "System.load() local Error: " + e.getMessage());
         }
     }
 
@@ -279,7 +281,22 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean autorun = sharedPref.getBoolean("autorun", false);
+        if (autorun) {
+            Log.d("custom-class-loader", "autorun activated");
+            dex_url = sharedPref.getString("DEX_url", "");
+            new DownloadFileFromURL(false, true).execute(dex_url);
+            nativeLib_url = sharedPref.getString("JNI_url", "");
+            String abi = android.os.Build.CPU_ABI;
+            if (nativeLib_url.endsWith("/")) {
+                nativeLib_url = nativeLib_url + abi + "/libhello-jni.so";
+            } else {
+                nativeLib_url = nativeLib_url + "/" + abi + "/libhello-jni.so";
+            }
+            new DownloadFileFromURL(true, true).execute(nativeLib_url);
+        }
 
         mToastButtonDEX = (Button) findViewById(R.id.toast_buttonDEX);
         mToastButtonLoadDex = (Button) findViewById(R.id.toast_button_load_DEX);
@@ -316,6 +333,12 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 // update URL from prefs
                 nativeLib_url = sharedPref.getString("JNI_url", "");
+                String abi = android.os.Build.CPU_ABI;
+                if (nativeLib_url.endsWith("/")) {
+                    nativeLib_url = nativeLib_url + abi + "/libhello-jni.so";
+                } else {
+                    nativeLib_url = nativeLib_url + "/" + abi + "/libhello-jni.so";
+                }
                 new DownloadFileFromURL(true).execute(nativeLib_url);
             }
         });
@@ -356,6 +379,7 @@ public class MainActivity extends Activity {
 
         private String fname;
         private File nativePath;
+        private boolean autorun = false;
 
         /**
          * Before starting background thread Show Progress Bar Dialog
@@ -365,7 +389,12 @@ public class MainActivity extends Activity {
             super.onPreExecute();
         }
 
-        DownloadFileFromURL(boolean Native){
+        DownloadFileFromURL(boolean Native, boolean autorun){
+            this.isNative = Native;
+            this.autorun = autorun;
+        }
+
+        DownloadFileFromURL(boolean Native) {
             this.isNative = Native;
         }
 
@@ -373,15 +402,17 @@ public class MainActivity extends Activity {
          * Downloading file in background thread
          */
         @Override
-        protected String doInBackground(String... f_url) {
+        protected synchronized String doInBackground(String... f_url) {
 
             int count;
 
             Log.e("BEFORE Starting ","download!");
 
             try {
+                Log.e("custom-class-loader", "URL: " + f_url[0]);
                 URL url = new URL(f_url[0]);
                 String urlpath = url.getPath();
+                Log.e("custom-class-loader", "URLpath: " + urlpath);
 
                 if (urlpath.endsWith(".so")) {
                     fname = SO_NAME;
@@ -392,7 +423,7 @@ public class MainActivity extends Activity {
                     return null;
                 }
 
-                Log.e("TAG:","fname is:" + fname);
+                Log.e("MainActivity:","fname is:" + fname);
                 insecureFilePermissions = sharedPref.getBoolean("insecure_perms", true);
                 if (isNative) {
                     if (insecureFilePermissions) {
@@ -409,20 +440,20 @@ public class MainActivity extends Activity {
                     }
                 }
 
-                Log.e("TAG", "native path is: " + nativePath.toString());
+                Log.e("MainActivity", "native path is: " + nativePath.toString());
 
-                Log.e("TAG", "connecting to:" + url.toString());
+                Log.e("MainActivity", "connecting to:" + url.toString());
 
                 insecureTLS = sharedPref.getBoolean("insecure_tls", false);
 
                 SSLContext sslContext = null;
                 try {
                     sslContext = SSLContext.getInstance("TLS");
-                    sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+                    sslContext.init(null, trustAllCerts, null);
                 } catch (NoSuchAlgorithmException e) {
-                    // do nothing
+                    e.printStackTrace();
                 } catch (KeyManagementException e) {
-                    // do nothing
+                    e.printStackTrace();
                 }
 
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -435,22 +466,23 @@ public class MainActivity extends Activity {
                 };
 
                 if (insecureTLS && connection2 != null) {
+                    Log.e("MainActivity", "Setting insecure SSLContext and HostnameVerifier");
                     connection2.setSSLSocketFactory(sslContext.getSocketFactory());
                     connection2.setHostnameVerifier(hv);
                 }
 
                 int len;
+                InputStream input;
 
                 if (connection2 != null) {
                     connection2.connect();
                     len = connection2.getContentLength();
+                    input = connection2.getInputStream();
                 } else {
                     connection.connect();
                     len = connection.getContentLength();
+                    input = connection.getInputStream();
                 }
-
-                // download the file
-                InputStream input = new BufferedInputStream(url.openStream(), len);
 
                 OutputStream output = new BufferedOutputStream(new FileOutputStream(nativePath));
 
@@ -468,9 +500,23 @@ public class MainActivity extends Activity {
                 // closing streams
                 output.close();
                 input.close();
+                if (connection2 != null) {
+                    connection2.disconnect();
+                }
+                else if (connection != null) {
+                    connection.disconnect();
+                }
                 if (insecureFilePermissions) {
                     nativePath.setReadable(true, false);
                     nativePath.setWritable(true, false);
+                }
+                if (autorun && !isNative) {
+                    loadDex(MainActivity.this, new File(getDir("dex", Context.MODE_WORLD_READABLE | Context.MODE_WORLD_WRITEABLE), SECONDARY_DEX_NAME));
+                }
+                if (autorun && isNative) {
+                    loadNative(MainActivity.this, new File(getDir("native", Context.MODE_WORLD_READABLE|Context.MODE_WORLD_WRITEABLE), SO_NAME));
+                    wait(1000L);
+                    PrintFromNative();
                 }
 
             } catch (Exception e) {

@@ -16,18 +16,20 @@
 
 package com.example.dex.lib;
 
-import android.content.Context;
+import android.app.Activity;
 import android.widget.Toast;
 
 import com.example.dex.LibraryInterface;
 
 public class LibraryProvider implements LibraryInterface {
-    public void showAwesomeToast(Context context, String message) {
+    public void showAwesomeToast(final Activity context, final String message) {
         if (context == null) {
             return;
         }
-        Toast.makeText(context,
-                       String.format("++ %s ++", message),
-                       Toast.LENGTH_LONG).show();
+        context.runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(context, String.format("++ %s ++", message), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

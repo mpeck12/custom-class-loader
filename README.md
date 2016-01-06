@@ -30,16 +30,17 @@ gradlew build
 2. Compile the external Dalvik code (.jar file):
 gradlew assembleExternalJar
 
-3. Place the generated .so file and .jar file on a web server.
+3. Place the generated .jar file and .so files on a web server.
 .jar file: libraries/lib1/build/outputs/secondary_dex.jar
-.so file: appjni/build/intermediates/ndk/release/lib/\<architecture\>/libhello-jni.so
+.so files: appjni/build/intermediates/ndk/release/lib/ (Place all of the subdirectories for all of the architectures on the web server)
 where <arch> depends on the architecture of the mobile device that the
 application will be running on
 
 4. Start the application, and configure its settings to point
-to the URLs of the .so file and .jar file.
+to the URL of the .jar (DEX) file and the URL that contains the .so (JNI) files
+(the app will automatically append <architecture>/libhello-jni.so to the JNI URL).
 
-[1] http://android-developers.blogspot.com/2011/07/custom-class-loading-in-dalvik.html
+[1] http://android-developers.blogspot.com/2011/07/custom-class-loading-in-dalvik.html  
 [2] http://developer.android.com/ndk/samples/sample_hellojni.html
 
 OLD README CONTENTS

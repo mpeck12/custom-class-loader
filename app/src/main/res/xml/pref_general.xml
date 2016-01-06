@@ -19,7 +19,7 @@
 
     <EditTextPreference
         android:key="JNI_url"
-        android:title="JNI URL"
+        android:title="JNI URL (&lt;arch&gt;/libhello-jni.so will be automatically appended)"
         android:defaultValue="@string/sharedobj"
         android:selectAllOnFocus="true"
         android:inputType="textUri"
@@ -29,12 +29,16 @@
     <CheckBoxPreference
         android:key="insecure_perms"
         android:title="@string/insecure_file_permissions"
-        android:contentDescription="(Toggling this deletes any already downloaded files)"
         android:defaultValue="false" />
 
     <CheckBoxPreference
         android:key="insecure_tls"
         android:title="@string/insecure_tls"
+        android:defaultValue="false" />
+
+    <CheckBoxPreference
+        android:key="autorun"
+        android:title="Automatically download and execute at app start"
         android:defaultValue="false" />
 
 </PreferenceScreen>

@@ -16,8 +16,8 @@
 
 package com.example.dex;
 
-import android.content.Context;
+import android.app.Activity;
 
 public interface LibraryInterface {
-    public void showAwesomeToast(Context context, String message);
+    public void showAwesomeToast(final Activity context, final String message);
 }
