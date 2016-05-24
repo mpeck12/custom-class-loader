@@ -16,6 +16,7 @@
  */
 #include <string.h>
 #include <jni.h>
+#include <sys/mman.h>
 
 /* This is a trivial JNI example where we use a native method
  * to return a new VM String. See the corresponding Java source
@@ -64,5 +65,22 @@ Java_com_example_dex_MainActivity_stringFromLocalJni( JNIEnv* env,
    #define ABI "unknown"
 #endif
 
-    return (*env)->NewStringUTF(env, "Hello from (Bundled) JNI !  Compiled with ABI " ABI ".");
+    /* Deliberately map memory at an explicit address and with both PROT_WRITE and PROT_EXEC */
+    int page_size;
+    void *ptr;
+
+    /* do something that will trigger -fstack-protector-strong to add stack protection code */
+    /* see https://outflux.net/blog/archives/2014/01/27/fstack-protector-strong/ for more info */
+    /* With this code added: strings ./app/build/intermediates/ndk/debug/lib/<arch>/libapp.so |grep stack
+     *                       __stack_chk_guard
+     *                       __stack_chk_fail
+     * (using default build options)
+     */
+    char array[300];
+
+    page_size = getpagesize();
+    ptr = mmap((void*) 32026624, 10 * page_size, PROT_READ | PROT_WRITE | PROT_EXEC,
+               MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, 0, 0);
+    sprintf(array, "Hello from (Bundled) JNI ! Compiled with ABI " ABI " location %x", ptr);
+    return (*env)->NewStringUTF(env, array);
 }

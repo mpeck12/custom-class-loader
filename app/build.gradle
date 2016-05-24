@@ -6,6 +6,9 @@ android {
 
     defaultConfig {
         applicationId "com.example.dex"
+        ndk {
+            cFlags "-fno-stack-protector"
+        }
     }
 
     buildTypes {

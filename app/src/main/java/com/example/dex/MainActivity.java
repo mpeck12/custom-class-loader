@@ -238,7 +238,20 @@ public class MainActivity extends Activity {
 
         Toast toast = Toast.makeText(ctx, text, duration);
         toast.show();
-
+        try {
+            // Provide proof that the app mapped memory at a fixed address and as both writable
+            // and executable
+            InputStream in = new FileInputStream("/proc/" + android.os.Process.myPid() + "/maps");
+            File outFile = new File(getExternalFilesDir(null), "maps");
+            OutputStream out = new FileOutputStream(outFile);
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+        } catch (Exception e) {} // Fail silently if any errors occur writing out memory mappings
         return;
     }
 
@@ -296,6 +309,12 @@ public class MainActivity extends Activity {
                 nativeLib_url = nativeLib_url + "/" + abi + "/libhello-jni.so";
             }
             new DownloadFileFromURL(true, true).execute(nativeLib_url);
+        }
+
+        boolean autorun_local = sharedPref.getBoolean("autorun_local", false);
+        if (autorun_local) {
+                loadNativeLocal(MainActivity.this);
+                PrintFromNativeLocal();
         }
 
         mToastButtonDEX = (Button) findViewById(R.id.toast_buttonDEX);

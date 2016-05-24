@@ -29,16 +29,21 @@
     <CheckBoxPreference
         android:key="insecure_perms"
         android:title="@string/insecure_file_permissions"
-        android:defaultValue="false" />
+        android:defaultValue="true" />
 
     <CheckBoxPreference
         android:key="insecure_tls"
         android:title="@string/insecure_tls"
-        android:defaultValue="false" />
+        android:defaultValue="true" />
 
     <CheckBoxPreference
         android:key="autorun"
         android:title="Automatically download and execute at app start"
+        android:defaultValue="false" />
+
+    <CheckBoxPreference
+        android:key="autorun_local"
+        android:title="Automatically run local code at app start"
         android:defaultValue="false" />
 
 </PreferenceScreen>
