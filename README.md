@@ -39,6 +39,8 @@ application will be running on
 4. Start the application, and configure its settings to point
 to the URL of the .jar (DEX) file and the URL that contains the .so (JNI) files
 (the app will automatically append <architecture>/libhello-jni.so to the JNI URL).
+  
+This application is part of a collection of MITRE's [Vulnerable and Privacy Violating Mobile Apps](https://github.com/mitre/vulnerable-mobile-apps).
 
 [1] http://android-developers.blogspot.com/2011/07/custom-class-loading-in-dalvik.html  
 [2] http://developer.android.com/ndk/samples/sample_hellojni.html
